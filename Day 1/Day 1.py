@@ -7,14 +7,17 @@ with open("input.txt", "r") as f:
     for num in content:
         
         if not num:
+            print("____________________")
             info[i] = calories
             if calories > max_calories:
                 max_calories = calories
                 max_calories_index = i
             calories = 0
             i+=1
-            continue
-        calories =+ int(num)
+        else:
+            calories += int(num)
+            print(int(num), calories)
 
-    print("Elf {index} is carrying the most calories, which are {cals}".format(index = max_calories_index, cals = info[max_calories_index]))
+    print("Elf {index} is carrying the most calories, which are {cals}".format(index = max_calories_index, cals = max_calories))
+
 
