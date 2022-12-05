@@ -17,3 +17,23 @@ with open("input.txt", "r") as f:
 
     print(score)
 
+#part 2______________________
+    badges = []
+    score = 0
+    i = 0
+    while i < len(content) - 1:
+        sack_one = set(content[i])
+        sack_two = set(content[i+1])
+        sack_three = set(content[i+2])
+        badges.append(list(sack_one.intersection(sack_two, sack_three))[0])
+        i += 3
+        
+    for item in badges:
+        if item.isupper():
+            score = score + int(ord(item)) - 38
+
+        else:
+            score = score + int(ord(item)) - 96
+
+    print(score)
+    f.close()

@@ -6,11 +6,11 @@ with open("input.txt", "r") as f:
         j = 0
         for num in line:
             if num == "A" or num == "X":
-                content[i][j] = int(1)
+                content[i][j] = 1
             if num == "B" or num == "Y":
-                content[i][j] = int(2)
+                content[i][j] = 2
             if num == "C" or num == "Z":
-                content[i][j] = int(3)
+                content[i][j] = 3
             j+=1
         i += 1
 
