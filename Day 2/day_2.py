@@ -24,3 +24,27 @@ with open("input.txt", "r") as f:
             score += 3
     print(score)
 
+    #part 2__________________________
+    score = 0
+    for round in content:
+
+        if round[1] == 2:
+            score += 3
+            score += round[0]
+
+        elif round[1] == 3:
+            score += 6
+            if round[0] ==3:
+                score += 1
+            else:
+                score += round[0] + 1
+        else:
+            if round[0] == 1:
+                score += 3
+            else:
+                score += round[0] - 1
+
+    print(score)
+    f.close()
+
+
