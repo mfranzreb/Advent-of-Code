@@ -1,13 +1,16 @@
+from timeit import default_timer as timer
+start = timer()
+
+
 with open("input.txt", "r") as f:
     content = [line.strip("\n") for line in f.readlines()]
     content = "_".join(content)
     content = content.split("$ cd ")
     computer = {}
     
-    content = content[2:]
+    content_part_one = content[2:]
     path = "/"
-    #print(content)
-    for command in content:
+    for command in content_part_one:
 
         if ".." in command:
             path = path.split("/")[:-1]
@@ -24,7 +27,6 @@ with open("input.txt", "r") as f:
                 path = path + "/" + current_dir
             if "ls" in command:
                 ls = command.split("_")[2:]
-                #print(ls)
                 size = 0
                 for subthing in ls:
                     if "dir" in subthing:
@@ -42,7 +44,6 @@ with open("input.txt", "r") as f:
                     computer["level_{0}".format(current_level)] = {}
                     computer["level_{0}".format(current_level)][path] = size
 
-    #print(computer)
     computer_list = []
     total_score = 0
     for key, value in computer.items():
@@ -58,15 +59,42 @@ with open("input.txt", "r") as f:
         for key, value in computer_list[i].items():
             new_value = value
             for subkey, subvalue in computer_list[i+1].items():
-                if key in subkey:
+                if subkey.startswith(key):
                     new_value += subvalue
             computer_list[i][key] = new_value
             if new_value < 100000:
                 total_score += new_value
-
         i -= 1
     print(total_score)
-    #total_computer_space = 
+    #part 2_______________
+
+
+    
+    total_used_space = 0
+    level_0 = str(content[1:2])
+    ls = level_0.split("_")[2:-1]
+    for thing in ls:
+        if "dir" not in thing:
+            total_used_space += int(thing.split(" ")[0])
+
+    for key, value in computer_list[0].items():
+        total_used_space += value
+
+    needed_space = total_used_space - 40000000
+    smallest_dir_space = 70000000
+
+    for level in computer_list:
+        for key, value in level.items():
+            if value < smallest_dir_space and value > needed_space:
+                smallest_dir_space = value
+
+    print(smallest_dir_space)
+    f.close()
+
+end = timer()
+print(end - start)
+
+
 
 
 
