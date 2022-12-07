@@ -16,13 +16,14 @@ with open("input.txt", "r") as f:
         stack.reverse()
     for i in range(0,len(commands)-1,3):
         j = 0
+        crates_moved = []
         while j < commands[i]:
             crate = stacks[commands[i+1] - 1].pop()
-            stacks[commands[i+2] - 1].append(crate)
+            crates_moved.append(crate)
             j += 1
+        crates_moved.reverse()
+        for c in crates_moved:            
+            stacks[commands[i+2] - 1].append(c)
     crates = [stack[-1] for stack in stacks]
     print(crates)
     f.close()
-
-
-     
