@@ -46,5 +46,79 @@ with open("input.txt", "r") as f:
         i += 1
 
     print(visible_trees)
-                    
 
+
+    #part 2_________
+
+    i = 0
+    max_score = 0
+    while i < len(grid_rows):
+        current_row = i
+        j = 0
+        while j < len(grid_rows[0]):
+            view_score = 0
+            current_tree = j
+            view_left = 0
+            view_right = 0
+            view_up = 0
+            view_down = 0
+            tree_height = grid_rows[current_row][current_tree]
+
+            trees_left = grid_rows[current_row][:current_tree]
+            trees_left.reverse()
+            trees_right = grid_rows[current_row][current_tree+1:]
+            trees_up = grid_columns[current_tree][:current_row]
+            trees_up.reverse()
+            trees_down = grid_columns[current_tree][current_row+1:]
+
+            for tree in trees_left:
+                #print(tree)
+                if tree_height >= tree:
+                    view_left += 1
+                elif len(trees_left)!= 1:
+                    view_left = 1
+                else:
+                    break
+                if tree_height == tree:
+                    break
+
+            for tree in trees_right:
+                if tree_height >= tree:
+                    view_right += 1
+                elif len(trees_right)!= 1:
+                    view_right = 1
+                else:
+                    break
+                if tree_height == tree:
+                    break
+
+            for tree in trees_up:
+                if tree_height >= tree:
+                    view_up += 1
+                elif len(trees_up)!= 1:
+                    view_up = 1
+                else:
+                    break
+                if tree_height == tree:
+                    break
+
+            for tree in trees_down:
+                if tree_height >= tree:
+                    view_down += 1
+                elif len(trees_down)!= 1:
+                    view_down = 1
+                else:
+                    break
+                if tree_height == tree:
+                    break
+
+            view_score = view_down*view_left*view_up*view_right
+            if view_score > max_score:
+                max_score = view_score
+   
+            j += 1
+        i += 1
+                      
+
+    print(max_score)
+    f.close()
