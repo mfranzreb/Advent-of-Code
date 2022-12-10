@@ -17,6 +17,7 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 9/input.txt") as f:
             elif direction == "D":
                 knot_coords[0][1] = knot_coords[0][1] - 1
 
+            j = 1
             for knot in knot_coords[1:]:
                 prev_knot_index = knot_coords.index(knot) - 1
                 if prev_knot_index == 0:
@@ -46,11 +47,13 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 9/input.txt") as f:
                     else:
                         knot.append((prev_knot[0], knot[-1][1] - 1))
 
-                else:
+                elif abs(prev_knot[1]-knot[-1][1]) == 1:
                     if prev_knot[0] - knot[-1][0] > 0:
                         knot.append((knot[-1][0] + 1, prev_knot[1]))
                     else:
                         knot.append((knot[-1][0] - 1, prev_knot[1]))
+                else:
+                    print(prev_knot_index, prev_knot, knot[-1])
 
             i += 1
     positions_visited = set(knot_coords[-1])
