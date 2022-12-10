@@ -32,7 +32,7 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 10/input.txt") as f:
     line_pixels = ""
     for key, value in register_per_cycle.items():
         pixel_pos = key - 1 - reset_line
-        if pixel_pos + 1 == value or pixel_pos - 1 == value:
+        if pixel_pos + 1 == value or pixel_pos - 1 == value or pixel_pos == value:
             line_pixels += "#"
         else:
             line_pixels += "."
