@@ -18,12 +18,14 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 9/input.txt") as f:
                 knot_coords[0][1] = knot_coords[0][1] - 1
 
             j = 1
-            for knot in knot_coords[1:]:
-                prev_knot_index = knot_coords.index(knot) - 1
-                if prev_knot_index == 0:
-                    prev_knot = knot_coords[prev_knot_index]
+            while j < len(knot_coords):
+                knot = knot_coords[j]
+
+                if j == 1:
+                    prev_knot = knot_coords[0]
                 else:
-                    prev_knot = knot_coords[prev_knot_index][-1]
+                    prev_knot = knot_coords[j-1][-1]
+
                 dist_coords = [prev_knot[0]-knot[-1][0], prev_knot[1]-knot[-1][1]]
                 dist = dist_coords[0]**2 + dist_coords[1]**2
                 if dist < 2.25:
@@ -53,9 +55,12 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 9/input.txt") as f:
                     else:
                         knot.append((knot[-1][0] - 1, prev_knot[1]))
                 else:
-                    print(prev_knot_index, prev_knot, knot[-1])
+                    knot.append(knot_coords[j-1][-2])
+
+                j += 1
 
             i += 1
+        
     positions_visited = set(knot_coords[-1])
     print(len(positions_visited)) 
     f.close()
