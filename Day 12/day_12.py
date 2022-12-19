@@ -27,30 +27,31 @@ def main():
 
     path = shortest_path(graph, start_coord, end_coord)
 
-    #print(path)
-    print(len(path) - 1)
+    print(path)
 
 
 def shortest_path(graph, start_coord, end_coord):
-    paths = [[start_coord]]
+    map_width = len(graph[0]) -1 
+    map_height = len(graph) -1
+    paths = [[float("inf") for i in range(map_width + 1)] for j in range(map_height + 1)]
+    paths[start_coord[1]][start_coord[0]] = 0
+    current_coords = [start_coord]
     #i = 1
     directions = [[-1, 0], [0, 1], [1, 0], [0, -1]]
     while True:
-        new_paths = []
-        for path in paths:
-            current_coord = path[-1]
-            new_steps = get_possible_directions(directions, paths, new_paths, graph, current_coord)
+        #new_paths = []
+        new_coords = list()
+        for path in current_coords:
+            new_steps = get_possible_directions(directions, paths, graph, path, map_width, map_height)
             for step in new_steps:
-
+                new_coords.append(step)
+                paths[step[1]][step[0]] = paths[path[1]][path[0]] + 1
                 if step == end_coord:
-                    new_path = copy(path)
-                    new_path.append(step)
-                    return new_path
+                    return paths[step[1]][step[0]]
 
-                else:
-                    new_path = copy(path)
-                    new_path.append(step)
-                    new_paths.append(new_path)
+                
+
+
         """if i % 5== 0 and i > 322:
             vis_map = [["_" for i in range(map_width+1)] for j in range(map_height+1)] # visualization
             for path in paths:
@@ -66,20 +67,19 @@ def shortest_path(graph, start_coord, end_coord):
             txt =  "\n".join(vis_map)
             print(txt)
             print("\n")"""
-        if new_paths:
+        """if new_paths:
             paths.clear()
             paths.append(new_paths)
-            paths = paths[0]
+            paths = paths[0]"""
         #i+=1  
-
-def get_possible_directions(directions, paths, new_paths, graph, current_coord):
-    map_width = len(graph[0]) -1 
-    map_height = len(graph) -1
+        current_coords = new_coords
+def get_possible_directions(directions, paths, graph, coord, map_width, map_height):
     new_steps = []
     for dir in directions:
-        new_step = [current_coord[0] + dir[0], current_coord[1] + dir[1]]
-        if not (any(new_step in p for p in paths) or any(new_step in t for t in new_paths)) and not (new_step[0] < 0 or new_step[0] > map_width) and not (new_step[1] < 0 or new_step[1] > map_height) and graph[new_step[1]][new_step[0]] - 1 <= graph[current_coord[1]][current_coord[0]]:
+        new_step = [coord[0] + dir[0], coord[1] + dir[1]]
+        if not (new_step[0] < 0 or new_step[0] > map_width) and not (new_step[1] < 0 or new_step[1] > map_height) and paths[coord[1]][coord[0]] + 1 < paths[new_step[1]][new_step[0]] and graph[new_step[1]][new_step[0]] - 1 <= graph[coord[1]][coord[0]]:
             new_steps.append(new_step)
+            
 
     return new_steps
 
