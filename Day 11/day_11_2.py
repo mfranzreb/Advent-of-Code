@@ -1,3 +1,7 @@
+from timeit import default_timer as timer
+
+beg = timer()
+
 class Monkey:
     def __init__(self, block):
         self.items = [int(nums) for nums in block[1].split(": ")[1].split(", ")]
@@ -7,7 +11,10 @@ class Monkey:
         self.no = int(block[5].split("monkey")[1])
         self.activity = 0
 
-    def inspect(self, item, item_index):
+    def __repr__(self):
+        return str(self.items)
+
+    def inspect(self, item, item_index, test_divisors_mult):
         if any(char.isdigit() for char in self.operation):
             operator = int(self.operation.split(" ")[1])
 
@@ -23,17 +30,17 @@ class Monkey:
         elif "+" in self.operation:
             item += operator
 
+        item = item - int(item/test_divisors_mult)*test_divisors_mult
         self.items[item_index] = item
         self.activity += 1
         return item
 
-    def test(self, item, item_index, test_divisors_mult):
+    def test(self, item, item_index):
+        
+        self.items[item_index] = item
         if item % self.test_op == 0:
-            if item % test_divisors_mult == 0:
-                 item = 96577
-                 print("YAAASSSS")
-                 self.items[item_index] = item
             return self.yes
+
         else:
             return self.no
 
@@ -46,12 +53,15 @@ class Monkey:
         
 
     
-with open("C:/Users/Marco/Desktop/Advent of Code/Day 11/test.txt") as f:
+with open("C:/Users/Marco/Desktop/Advent of Code/Day 11/input.txt") as f:
     content = [paraf.split("\n") for paraf in f.read().split("Monkey")]
     content = content[1:]
     monkeys = []
     test_divisors = []
     test_divisors_mult = 1
+
+    
+
     for block in content:
         monk = Monkey(block)
         monkeys.append(monk)
@@ -59,19 +69,12 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 11/test.txt") as f:
         test_divisors_mult *= monk.test_op
 
 
-    for i in range(1000):
+    for i in range(10000):
         for j, monkey in enumerate(monkeys):
-
-            #print("MOnkey: "+ str(j))
-
             for x, item in enumerate(monkey.items):
-                current_item = monkey.inspect(item, x)
-                pass_to = monkey.test(current_item, x, test_divisors_mult)
+                current_item = monkey.inspect(item, x, test_divisors_mult)
+                pass_to = monkey.test(current_item, x)
                 monkeys[pass_to].receiveItem(current_item)
-                #if pass_to == monkey.yes:
-                    #print(current_item, i, j)
-
-                #print(item, current_item, pass_to)
 
             monkey.removeItems()
 
@@ -91,8 +94,11 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 11/test.txt") as f:
             max_act_2 = current_activity
 
     print(max_act_1, max_act_2, max_act_2*max_act_1)
+f.close()
 
 
+end = timer()
+print(end - beg)
 
 
 
