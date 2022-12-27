@@ -1,6 +1,9 @@
+from timeit import default_timer as timer
+
+beg = timer()
+
 with open("C:/Users/Marco/Desktop/Advent of Code/Day 10/input.txt") as f:
     content = [line.strip("\n") for line in f.readlines()]
-
     cycle_during = 0 #cycle that i am in
     register = 1
 
@@ -47,4 +50,7 @@ with open("C:/Users/Marco/Desktop/Advent of Code/Day 10/input.txt") as f:
     print(screen)
 
     f.close()
+
+end = timer()
+print(end - beg)
     
