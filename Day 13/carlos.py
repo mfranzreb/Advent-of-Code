@@ -42,13 +42,16 @@ def right_order(left, right):
 def q1(fname):
     result = 0
     lines = open(fname).readlines()
+    results = []
+    ordered = False
     for i in range(0, len(lines), 3):
+        #if i >= 42:
         left, right = eval(lines[i].strip()), eval(lines[i + 1].strip())
         ordered, _ = check_lists(left, right)
         if ordered:
-            print((i / 3) + 1)
+            results.append(int((i / 3) + 1))
             result += (i / 3) + 1
-    print(result)
+    print(results)
 
 
 def q2(fname):
@@ -58,5 +61,5 @@ def q2(fname):
 
 
 if __name__ == "__main__":
-    fname = "input.txt"
+    fname = "C:/Users/Marco/Desktop/Advent of Code/Day 13/input.txt"
     q1(fname)
