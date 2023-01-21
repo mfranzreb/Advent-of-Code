@@ -8,6 +8,7 @@ def readInput(fname):
         content = [line.strip("\n").split(" ") for line in f.readlines()]
         map = {}
         unstuck_valves = []
+        unstuck_valves_bin = dict()
         small_map = {}
         min_dist = float("inf")
         for i, line in enumerate(content):
@@ -39,9 +40,12 @@ def readInput(fname):
                 small_map[v][-1][other_v] = dist
                 small_map[other_v][-1][v] = dist
         small_map["AA"] = map_aa
+        for i, valve in enumerate(unstuck_valves):
+            bit = 1 << i
+            unstuck_valves_bin[bit] = valve
 
     f.close()
-    return small_map, unstuck_valves, min_dist
+    return small_map, unstuck_valves, min_dist, unstuck_valves_bin
 
 
 def main(map, unstuck_valves):
@@ -49,43 +53,24 @@ def main(map, unstuck_valves):
     starting_path = ["AA", [False for i in range(len(unstuck_valves))], 0, 30]
     paths.append(starting_path)
 
-    print(findMaxPressure_DFS("AA", 30, 0), counter)
+    get_combinations(26, "AA", list())
+
+    for comb in valve_combos:
+        findMaxPressure_DFS_3(comb, 26)
+
+    score = 0
+
+    for i, pressure in enumerate(order_pressures):
+        for j, ele_pressure in enumerate(order_pressures[i:]):
+            if not sum(valve_combos[i]) & sum(valve_combos[j + i]):
+                if pressure + ele_pressure > score:
+                    score = pressure + ele_pressure
+    print(score)
+
+    # print(findMaxPressure_DFS("AA", 30, 0), counter)
+    # print(findMaxPressure_DFS_2("AA", 26, "AA", 26, 0), counter)
     # print(findMaxPressure_BFS(map, starting_path))
-
-
-"""def findMaxPressure_BFS(map, path):
-    cache = {}
-    valves = list(map.keys())
-    valve, closed_valves, pressure, mins_left = (
-        path[0],
-        path[1],
-        path[2],
-        path[3],
-    )
-    if (valve, closed_valves, mins_left) in cache:
-        return cache[(valve, closed_valves, mins_left)]
-    for dir, dist in map[valve][-1].items():  # algo sucio?
-
-        if mins_left < min_dist:
-            return 0
-
-        if closed_valves[valves.index(dir)]:
-            continue
-        new_mins_left = mins_left - dist - 1
-        if new_mins_left < 0:
-            continue
-        new_closed_valves = list(closed_valves)
-        new_closed_valves[valves.index(dir)] = True
-        new_pressure = pressure + map[dir][0] * new_mins_left
-        new_path = [dir, new_closed_valves, new_pressure, new_mins_left]
-        new_paths.append(new_path)
-
-    max_pressure = 0
-    for path in paths:
-        if path[2] > max_pressure:
-            max_pressure = path[2]
-    print(loop_one, loop_two)
-    return max_pressure"""
+    # print(len(cache))
 
 
 def findMaxPressure_DFS(
@@ -114,6 +99,90 @@ def findMaxPressure_DFS(
     return score
 
 
+def findMaxPressure_DFS_2(
+    pos_me, time_me, pos_ele, time_ele, opened
+):  # PQ al usar @cache hay menos recursiones pero tarda mas? Pq con el graph de 15 nodes en vez de 45 y menos steps hay mas recursiones?
+    global counter
+    global cache
+    global valves
+    if (pos_me, time_me, pos_ele, time_ele, opened) in cache:
+        return cache[(pos_me, time_me, pos_ele, time_ele, opened)]
+    score = 0
+    counter += 1
+    for i, who in enumerate(
+        (
+            [pos_me, time_me],
+            [pos_ele, time_ele],
+        )
+    ):
+        pos, time = who[0], who[1]
+        if time < min_dist:
+            return 0
+        for dir, dist in map[pos][-1].items():
+            bit = 1 << valves.index(dir)
+            if not opened & bit:
+                rem_time = time - dist - 1
+                if rem_time > 0:
+                    if i == 0:
+                        score = max(
+                            score,
+                            findMaxPressure_DFS_2(
+                                dir,
+                                rem_time,
+                                pos_ele,
+                                time_ele,
+                                opened | bit,
+                            )
+                            + (time - dist - 1) * map[dir][0],
+                        )
+                    else:
+                        score = max(
+                            score,
+                            findMaxPressure_DFS_2(
+                                pos_me,
+                                time_me,
+                                dir,
+                                rem_time,
+                                opened | bit,
+                            )
+                            + (time - dist - 1) * map[dir][0],
+                        )
+    cache[(pos_me, time_me, pos_ele, time_ele, opened)] = score
+    return score
+
+
+def findMaxPressure_DFS_3(order, time):
+    pressure = 0
+    time
+    global unstuck_valves_bin
+    global order_pressures
+    for i, valve in enumerate(order):
+        dir = unstuck_valves_bin[valve]
+        if i == 0:
+            time -= map["AA"][-1][dir] + 1
+        else:
+            time -= map[unstuck_valves_bin[order[i - 1]]][-1][dir] + 1
+        pressure += time * map[dir][0]
+
+    order_pressures.append(pressure)
+
+
+def get_combinations(time, pos, valves_open):
+    global valve_combos
+    if time < min_dist or sum(valves_open) == all_open:
+        valve_combos.append(valves_open)
+        return 0
+    for dir, dist in map[pos][-1].items():
+        bit = 1 << unstuck_valves.index(dir)
+        if not sum(valves_open) & bit:
+            rem_time = time - dist - 1
+            if rem_time > 0:
+                new_valves_open = list(valves_open)
+                new_valves_open.append(bit)
+                valve_combos.append(new_valves_open)
+                get_combinations(rem_time, dir, new_valves_open)
+
+
 def delSmallestPath(path_one, path_two, cache):
     if path_one[-1] > path_two[-1]:
         cache.remove(path_two)
@@ -139,10 +208,18 @@ def findShortestPath(map, valve_one, valve_two):
 
 if __name__ == "__main__":
     content = readInput("C:/Users/Marco/Desktop/Advent of Code/Day 16/input.txt")
-    map, unstuck_valves, min_dist = content[0], content[1], content[2]
+    map, unstuck_valves, min_dist, unstuck_valves_bin = (
+        content[0],
+        content[1],
+        content[2],
+        content[3],
+    )
     cache = {}
     counter = 0
-    valves = list(map.keys())
+    valves = list(map.keys())  # quitalo
+    valve_combos = []
+    all_open = int("".join(["1" for i in unstuck_valves]), 2)
+    order_pressures = []
     main(map, unstuck_valves)
 
 end = timer()
