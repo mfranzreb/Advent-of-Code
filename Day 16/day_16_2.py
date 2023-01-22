@@ -10,6 +10,7 @@ def readInput(fname):
         unstuck_valves = []
         valves_bin_to_name = dict()
         valves_name_to_bin = dict()
+        small_map_bin = {}
         small_map = {}
         min_dist = float("inf")
         for i, line in enumerate(content):
@@ -29,25 +30,41 @@ def readInput(fname):
                 unstuck_valves.append(line[1])
                 small_map[line[1]] = [flow_rate, i, dict()]
         map_aa = [0, dict()]
+        for i, valve in enumerate(unstuck_valves):
+            bit = 1 << i
+            valves_bin_to_name[bit] = valve
+            valves_name_to_bin[valve] = bit
+            small_map_bin[bit] = [small_map[valve][0], dict()]
+
         for i, v in enumerate(unstuck_valves):
             dist = findShortestPath(map, "AA", v)
             if dist < min_dist:
                 min_dist = dist
-            map_aa[-1][v] = dist
-            for other_v in unstuck_valves[i + 1 :]:
+            bit = 1 << i
+            map_aa[-1][bit] = dist
+            for j, other_v in enumerate(unstuck_valves[i + 1 :]):
                 dist = findShortestPath(map, v, other_v)
                 if dist < min_dist:
                     min_dist = dist
+                other_bit = 1 << j + i + 1
+                small_map_bin[bit][-1][other_bit] = dist
+                small_map_bin[other_bit][-1][bit] = dist
                 small_map[v][-1][other_v] = dist
                 small_map[other_v][-1][v] = dist
-        small_map["AA"] = map_aa
+        small_map_bin[0] = map_aa
         for i, valve in enumerate(unstuck_valves):
             bit = 1 << i
             valves_bin_to_name[bit] = valve
             valves_name_to_bin[valve] = bit
 
     f.close()
-    return small_map, unstuck_valves, min_dist, valves_bin_to_name, valves_name_to_bin
+    return (
+        small_map_bin,
+        unstuck_valves,
+        min_dist,
+        valves_bin_to_name,
+        valves_name_to_bin,
+    )
 
 
 def main(map, unstuck_valves):
@@ -63,7 +80,7 @@ def main(map, unstuck_valves):
         for halves in possible_halves
     )"""
     score = max(
-        findMaxPressure_DFS("AA", 26, i) + findMaxPressure_DFS("AA", 26, i ^ all_open)
+        findMaxPressure_DFS(0, 26, i) + findMaxPressure_DFS(0, 26, i ^ all_open)
         for i in range((all_open + 1) // 2)
     )
     print(score)
@@ -74,7 +91,6 @@ def main(map, unstuck_valves):
 def findMaxPressure_DFS(
     pos, time, opened
 ):  # PQ al usar @cache hay menos recursiones pero tarda mas? Pq con el graph de 15 nodes en vez de 45 y menos steps hay mas recursiones?
-    global counter
     global cache
     if (
         pos,
@@ -83,17 +99,17 @@ def findMaxPressure_DFS(
     ) in cache:  # understand how this really works
         return cache[(pos, time, opened)]
     score = 0
-    counter += 1
+
     if time < min_dist:
         return 0
     for dir, dist in map[pos][-1].items():
-        bit = 1 << unstuck_valves.index(dir)
-        if not opened & bit:
+        # bit = 1 << unstuck_valves.index(dir)
+        if not opened & dir:
             rem_time = time - dist - 1
             if rem_time > 0:
                 score = max(
                     score,
-                    findMaxPressure_DFS(dir, rem_time, opened | bit)
+                    findMaxPressure_DFS(dir, rem_time, opened | dir)
                     + (time - dist - 1) * map[dir][0],
                 )
     cache[(pos, time, opened)] = score
