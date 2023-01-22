@@ -75,13 +75,14 @@ def main(map, unstuck_valves):
     # start.add(64)
     """get_half(0)
     score = max(
-        findMaxPressure_DFS("AA", 26, halves)
-        + findMaxPressure_DFS("AA", 26, halves ^ all_open)
+        findMaxPressure_DFS(0, 26, halves)
+        + findMaxPressure_DFS(0, 26, halves ^ all_open)
         for halves in possible_halves
     )"""
     score = max(
         findMaxPressure_DFS(0, 26, i) + findMaxPressure_DFS(0, 26, i ^ all_open)
         for i in range((all_open + 1) // 2)
+        if bin(i).count("1") == 7
     )
     print(score)
 
