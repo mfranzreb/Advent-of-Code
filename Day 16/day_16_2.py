@@ -56,11 +56,15 @@ def main(map, unstuck_valves):
     paths.append(starting_path)
     # start = set()
     # start.add(64)
-    get_half(0)
+    """get_half(0)
     score = max(
         findMaxPressure_DFS("AA", 26, halves)
         + findMaxPressure_DFS("AA", 26, halves ^ all_open)
         for halves in possible_halves
+    )"""
+    score = max(
+        findMaxPressure_DFS("AA", 26, i) + findMaxPressure_DFS("AA", 26, i ^ all_open)
+        for i in range((all_open + 1) // 2)
     )
     print(score)
 
